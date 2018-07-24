@@ -1,9 +1,9 @@
 (********************************************************)
 (* Jean-Paul LaBarre 8/21/2015                          *)
 (* Contains procedures and data types for working with  *)
-(* a hash table used to store data from an Allen-Bradly *)
-(* "float" .DAT file. Data is stored by the TagIndex    *)
-(* value.                                               *)
+(* a hash table used to store data from a FactoryTalk   *)
+(* View SE "float" .DAT file. Data is stored by the     *)
+(* TagIndex value.                                      *)
 (********************************************************)
 
 Unit FloatDataHash;
