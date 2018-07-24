@@ -1,14 +1,16 @@
 (************************************************************)
 (* Jean-Paul LaBarre 8/21/2013                              *)
-(* This  program  attempts   to   manipulate  Allen-Bradley *)
-(* Factory  Talk  View  datalog .DAT  files  and  eventualy *)
-(* output a single .csv file  with  Allen-Bradley tag names *)
-(* in the header,  empty  columns  removed,  and  data in a *)
-(* more  human  friendly  format.                           *)
+(* This program manipulate Rockwell's FactoryTalk View SE   *)
+(* datalog .DAT files and outputs a single .csv file  with  *)
+(* tag names in the header, empty columns removed, and data *)
+(* in a  more  human  friendly  format.                     *)
 (************************************************************)
-(* 3/30/2016 - JPL - Added check for EOF characters in date stamp. Should fix problems *)
-(*    with large invalid record counts in the dBase Header. Which seems to happen when *)
-(*    trying to log data very quickly in Factory Talk View SE. *) 
+(* 3/30/2016 - JPL - Added check for EOF characters in date *)
+(*    stamp. Should fix problems with large invalid record  *)
+(*    counts in the dBase Header. Which seems to happen     *)
+(*    when trying to log data very quickly in FactoryTalk   *)
+(*    View SE.                                              *)
+(************************************************************)
 
 Program MangleDAT;
 
@@ -160,7 +162,7 @@ end;
 
 Function EOFDate(date, time, milt : string) : boolean;
 (* Returns True if an EOF character Chr(26) is found anywhere in the date/time stamp. *)
-(* When logging at high rates (< 10 sec interval?) Factory Talk SE does not correctly *)
+(* When logging at high rates (< 10 sec interval?) FactoryTalk SE does not correctly  *)
 (* set the number of records in the dBase file header. *)
 begin 
   if (Pos(chr(26),date) <> 0) or
