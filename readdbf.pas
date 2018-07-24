@@ -1,16 +1,15 @@
-(************************************************************)
-(* Jean-Paul LaBarre 11/30/2012                             *)
-(* Reads records from a DBF file.                           *)
-(*                                                          *)
-(* 1/9/2012 - JPL - Might be able to read dBase 7 files now.*)
-(************************************************************)
-
-
+(***************************************************************)
+(* Jean-Paul LaBarre 11/30/2012                                *)
+(* Reads records from a DBF file.                              *)
+(*                                                             *)
+(* 1/9/2012 - JPL - Might be able to read dBase 7 files now.   *)
+(***************************************************************)
 (* 12/22/2012 - JPL - removed EOF tests while reading records. *)
 (*   this causes problems in windows if a x1A character is     *)
 (*   encountered. A normal dBase file shouldn't have this char *)
-(*   but Rowckwell's .DAT files try to encode floating point   *)
-(*   data and take some liberties with the spec.               *)
+(*   but Rowckwell's .DAT files try to encode binary floating  *)
+(*   point data and take some liberties with the spec.         *)
+(***************************************************************)
 
 Unit ReadDBF;
 
