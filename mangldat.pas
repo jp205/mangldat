@@ -1,18 +1,27 @@
-(************************************************************)
-(* Jean-Paul LaBarre 8/21/2013                              *)
-(* This program manipulate Rockwell's FactoryTalk View SE   *)
-(* datalog .DAT files and outputs a single .csv file  with  *)
-(* tag names in the header, empty columns removed, and data *)
-(* in a  more  human  friendly  format.                     *)
-(************************************************************)
-(* 3/30/2016 - JPL - Added check for EOF characters in date *)
-(*    stamp. Should fix problems with large invalid record  *)
-(*    counts in the dBase Header. Which seems to happen     *)
-(*    when trying to log data very quickly in FactoryTalk   *)
-(*    View SE.                                              *)
-(************************************************************)
+(*************************************************************************)
+(* ManglDat reads Rockwell's FactoryTalk View SE datalog .DAT files and  *)
+(* outputs a single .csv file with tag names in the header, empty        *)
+(* columns removed, and data in a more human friendly format.            *)
+(*                                                                       *)
+(* Copyright (C) 2018  Jean-Paul LaBarre                                 *)
+(*                                                                       *)
+(* This file is part of ManglDat.                                        *)
+(*                                                                       *)
+(* ManglDat is free software: you can redistribute it and/or modify      *)
+(* it under the terms of the GNU General Public License as published by  *)
+(* the Free Software Foundation, either version 3 of the License, or     *)
+(* (at your option) any later version.                                   *)
+(*                                                                       *)
+(* ManglDat is distributed in the hope that it will be useful,           *)
+(* but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *)
+(* GNU General Public License for more details.                          *)
+(*                                                                       *)
+(* You should have received a copy of the GNU General Public License     *)
+(* along with ManglDat. If not, see <http://www.gnu.org/licenses/>.      *)
+(*************************************************************************)
 
-Program MangleDAT;
+Program ManglDat;
 
 Uses
   readdbf,
@@ -180,7 +189,20 @@ begin
 
   if (paramstr(1) = '') or (paramstr(2) = '') then
      begin
+       Writeln;
+       Writeln('ManglDat Copyright (C) 2018 Jean-Paul LaBarre');
+       Writeln;
+       Writeln('This program is free software and comes with ABSOLUTLEY NO WARRANTY.');
+       Writeln('You are welcome to redistribute it and/or modify it under the terms');
+       Writeln('of the GNU General Public License as published by the Free Software');
+       Writeln('Foundation, either version 3 of the License or (at your option) any');
+       Writeln('later version.');
+       Writeln;
+       Writeln('You should have received a copy of the GNU General Public license');
+       Writeln('along with this program. If not, see <http://www.gnu.org/licenses/>.');
+       Writeln;
        Writeln('Usage: mangldat <tagname.DAT> <float.DAT>');
+       Writeln;
        Halt(0);
      end;
 
