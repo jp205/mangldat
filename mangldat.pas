@@ -30,6 +30,9 @@ Uses
   chopchop,
   math;
 
+Const
+  vnum = '0.0';
+
 var
   FloatFile : text;
 
@@ -57,14 +60,7 @@ var
 
 Function StrToFloat(S : String) : Double;
 var
-  i : Byte;
-  RawBytes : QWord;
-  RawSignificand : QWord;
-  Divisor : QWord;
-  Exponent : Integer;
-  Significand : Double;
-  FinalResult : Double;
-  Sign : Boolean;
+ d : ^Double; 
 
 begin
 
@@ -72,39 +68,10 @@ begin
   if (ord(s[0]) <> 8 ) then
      StrToFloat := NaN
   else
+     (* Read String as 64 bit Float *)
      begin
-
-       (* Copy bytes into QWord. *)
-       RawBytes := 0;
-       for i := 8 downto 1 do
-         begin
-           RawBytes := RawBytes shl 8;
-           RawBytes := RawBytes or ord(s[i]);
-         end;
-
-       (* Sign Bit *)
-       Sign := (RawBytes and $8000000000000000) <> 0;
-
-      (* Significand *)
-      RawSignificand := RawBytes and $FFFFFFFFFFFFF;
-      Significand := 1;
-      for i := 51 downto 0 do
-          begin
-            (* Some trickery is needed to keep the compiler in line. *)
-            (* i.e. make sure that shl & shr are preformed on QWords. *)
-            Divisor := 2;
-            Divisor := Divisor shl (51 - i);
-            Significand := Significand + ((RawSignificand shr i) and 1) / Divisor;
-          end;
-
-      (* Exponent *)
-      Exponent := (RawBytes and $7FF0000000000000) shr 52 - 1023;
-
-      (* Compute Final Number *)
-      FinalResult := Significand * power(2, Exponent);
-      if Sign then FinalResult := FinalResult * -1;
-      StrToFloat := FinalResult;
-
+	d := @s[1];
+	StrToFloat := d^;
      end;
 end;
 
@@ -190,7 +157,7 @@ begin
   if (paramstr(1) = '') or (paramstr(2) = '') then
      begin
        Writeln;
-       Writeln('ManglDat Copyright (C) 2018 Jean-Paul LaBarre');
+       Writeln('ManglDat Ver ', vnum, ' Copyright (C) 2018 Jean-Paul LaBarre');
        Writeln;
        Writeln('This program is free software and comes with ABSOLUTLEY NO WARRANTY.');
        Writeln('You are welcome to redistribute it and/or modify it under the terms');
