@@ -47,7 +47,7 @@ var
   TRecPtr : TagNameRecPtr;
 
   FHash : FloatDataTable;
- 
+
   Index : Word;
   Count : Word;
   FCount : Word;
@@ -192,7 +192,7 @@ begin
      begin
        assign(StringFile, paramstr(3));
        reset(StringFile);
-       ReadHeader(StringFile, SdBase);       
+       ReadHeader(StringFile, SdBase);
        HaveStrings := True;
      end
   else
@@ -259,7 +259,7 @@ begin
       While (cMilt = nMilt) and (cTime = nTime) and (cDate = nDate) do
         begin
           Val(GetField('TagIndex', FdBase, FRec), Key, Code);
-          FloatDataHashStore(GetField('Value', FdBase, FRec), Key, FHash);          
+          FloatDataHashStore(GetField('Value', FdBase, FRec), Key, FHash);
           FreeRecord(FRec);
           if FCount < FdBase.NumRecords then
             begin
@@ -281,7 +281,7 @@ begin
               FloatDataHashStore(GetField('Value', SdBase, SRec), Key, FHash);
               FreeRecord(SRec);
               if SCount < SdBase.NumRecords then
-                begin          
+                begin
                   ReadRecord(StringFile, SdBase, SRec);
                   sDate := GetField('Date', SdBase, SRec);
                   sTime := GetField('Time', SdBase, SRec);
@@ -290,7 +290,7 @@ begin
                 end
               else
                 sMilt := ''; (* End of File, Exit Loop *)
-            end; (* 2nd Inner While Loop *)                     
+            end; (* 2nd Inner While Loop *)
 
       (* Write data, check data type and convert as needed. *)
       For Index := 0 to Count do
@@ -321,7 +321,6 @@ begin
 
   close(FloatFile);
   TagNameHashFree(THash);
-  FloatDataHashFree(FHash);
   FreedBase(FdBase);
 
 end.
