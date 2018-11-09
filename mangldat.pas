@@ -26,30 +26,36 @@ Program ManglDat;
 Uses
   readdbf,
   tagnamehash,
-  floatdatahash,
+  floatdatahash, 
   chopchop,
   math;
 
 Const
-  vnum = '0.0';
+  vnum = '0.1';
 
 var
   FloatFile : text;
+  StringFile : text;
 
   FdBase : dBaseType;
   FRec   : RecordType;
+
+  SdBase : dBaseType;
+  SRec   : RecordType;
 
   THash : TagNameTable;
   TRecPtr : TagNameRecPtr;
 
   FHash : FloatDataTable;
+ 
   Index : Word;
   Count : Word;
-  RCount : Word;
+  FCount : Word;
+  SCount : Word;
 
-  cDate, nDate : String;
-  cTime, nTime : String;
-  cMilt, nMilt : String;
+  cDate, nDate, sDate : String;
+  cTime, nTime, sTime : String;
+  cMilt, nMilt, sMilt : String;
 
   Key  : Word;
   Code : Integer;
@@ -57,16 +63,16 @@ var
   TempData : String;
   TempType : ShortInt;
 
+  HaveStrings : Boolean;
 
 Function StrToFloat(S : String) : Double;
 var
  d : ^Double; 
-
 begin
 
   (* Quick Sanity Check *)
   if (ord(s[0]) <> 8 ) then
-     StrToFloat := NaN
+       StrToFloat := NaN
   else
      (* Read String as 64 bit Float *)
      begin
@@ -168,7 +174,7 @@ begin
        Writeln('You should have received a copy of the GNU General Public license');
        Writeln('along with this program. If not, see <http://www.gnu.org/licenses/>.');
        Writeln;
-       Writeln('Usage: mangldat <tagname.DAT> <float.DAT>');
+       Writeln('Usage: mangldat <tagname.DAT> <float.DAT> [string.DAT]');
        Writeln;
        Halt(0);
      end;
@@ -179,8 +185,18 @@ begin
   (* Read Float File Header *)
   assign(FloatFile, paramstr(2));
   reset(FloatFile);
-
   ReadHeader(FloatFile, FdBase);
+
+  (* Read String File Header, if provided. *)
+  if paramstr(3) <> '' then
+     begin
+       assign(StringFile, paramstr(3));
+       reset(StringFile);
+       ReadHeader(StringFile, SdBase);       
+       HaveStrings := True;
+     end
+  else
+     HaveStrings := False;
 
   (* At this point can write the .csv file header. *)
   (* for now just write it to standard output.     *)
@@ -203,24 +219,35 @@ begin
   (* Initilize Hash Table *)
   FloatDataHashInit(FHash);
 
-  (* Initilize count of records read. *)
-  RCount := 0;
+  (* Initilize counts of records read. *)
+  FCount := 0;
+  SCount := 0;
 
   (* Read first record from float file. *)
   if FdBase.NumRecords > 0 then
      begin
        ReadRecord(FloatFile, FdBase, FRec);
-       RCount := RCount + 1;
+       FCount := FCount + 1;
        nDate := GetField('Date', FdBase, FRec);
        nTime := GetField('Time', FdBase, FRec);
        nMilt := GetField('Millitm', FdBase, FRec);
      end;
+  
+  (* Read first record from string file. *)
+  if HaveStrings and (SdBase.NumRecords > 0) then
+     begin
+       ReadRecord(StringFile, SdBase, SRec);
+       SCount := SCount + 1;
+       sDate := GetField('Date', SdBase, SRec);
+       sTime := GetField('Time', SdBase, SRec);
+       sMilt := GetField('Millitm', SdBase, SRec);
+     end;
 
   (* Read the other records, write to csv, etc. *)
-  While (RCount < FdBase.NumRecords) and Not EOFDate(nDate, nTime, nMilt) do
+  While (FCount < FdBase.NumRecords) and Not EOFDate(nDate, nTime, nMilt) do
     begin
 
-      (* Copy the Date, Time, and Militum for future comparison. *)
+      (* Copy the Date, Time, and Millitm for future comparison. *)
       cDate := nDate;
       cTime := nTime;
       cMilt := nMilt;
@@ -232,19 +259,38 @@ begin
       While (cMilt = nMilt) and (cTime = nTime) and (cDate = nDate) do
         begin
           Val(GetField('TagIndex', FdBase, FRec), Key, Code);
-          FloatDataHashStore(GetField('Value', FdBase, FRec), Key, FHash);
+          FloatDataHashStore(GetField('Value', FdBase, FRec), Key, FHash);          
           FreeRecord(FRec);
-         if RCount < FdBase.NumRecords then
-           begin
-             ReadRecord(FloatFile, FdBase, FRec);
-             nDate := GetField('Date', FdBase, FRec);
-             nTime := GetField('Time', FdBase, FRec);
-             nMilt := GetField('Millitm', FdBase, FRec);
-             RCount := RCount + 1;
-           end
-         else
-            nMilt := '';  (* End of File, Exit Loop *)
-        end; (* Inner Wile Loop *)
+          if FCount < FdBase.NumRecords then
+            begin
+              ReadRecord(FloatFile, FdBase, FRec);
+              nDate := GetField('Date', FdBase, FRec);
+              nTime := GetField('Time', FdBase, FRec);
+              nMilt := GetField('Millitm', FdBase, FRec);
+              FCount := FCount + 1;
+            end
+          else
+             nMilt := '';  (* End of File, Exit Loop *)
+        end; (* 1st Inner While Loop *)
+
+      (* Do the same for the String File if being used. *)
+      If HaveStrings Then
+         While (cMilt = sMilt) and (cTime = sTime) and (cDate = sDate) do
+            begin
+              Val(GetField('TagIndex', SdBase, SRec), Key, Code);
+              FloatDataHashStore(GetField('Value', SdBase, SRec), Key, FHash);
+              FreeRecord(SRec);
+              if SCount < SdBase.NumRecords then
+                begin          
+                  ReadRecord(StringFile, SdBase, SRec);
+                  sDate := GetField('Date', SdBase, SRec);
+                  sTime := GetField('Time', SdBase, SRec);
+                  sMilt := GetField('Millitm', SdBase, SRec);
+                  SCount := SCount + 1;
+                end
+              else
+                sMilt := ''; (* End of File, Exit Loop *)
+            end; (* 2nd Inner While Loop *)                     
 
       (* Write data, check data type and convert as needed. *)
       For Index := 0 to Count do
@@ -260,8 +306,8 @@ begin
           (*  0 : Integer?                  *)
           (*  1 : Double                    *)
           (*  2 : String                    *)
-
-          if TempType = 2 then (* Is String? *)
+           
+          if (TempData = '') or (TempType = 2) then (* Missing Data or String *)
             Write(',', TempData)
           else
             Write(',', StrToFloat(TempData));
@@ -269,6 +315,7 @@ begin
         end;  (* For Loop *)
 
       Writeln; (* End of Row *)
+      FloatDataHashFree(FHash) (* Clear Hash Table *)
 
     end; (* Outer While Loop *)
 
