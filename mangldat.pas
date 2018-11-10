@@ -27,11 +27,11 @@ Uses
   readdbf,
   tagnamehash,
   floatdatahash, 
-  chopchop,
-  math;
+  chopchop;
 
 Const
   vnum = '0.1';
+  NaN = 0.0 / 0.0;
 
 var
   FloatFile : text;
@@ -64,6 +64,7 @@ var
   TempType : ShortInt;
 
   HaveStrings : Boolean;
+
 
 Function StrToFloat(S : String) : Double;
 var
